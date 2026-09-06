@@ -34,7 +34,7 @@ export const ChatbotWidget: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:8000/api/chat`, {
+      const response = await fetch(`${backendClient.baseUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

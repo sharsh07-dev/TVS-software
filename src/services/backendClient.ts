@@ -3,9 +3,11 @@ import type {
   LiveEcosystemEvent
 } from '../types/eeris';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const WS_BASE = API_BASE.replace('http://', 'ws://').replace('https://', 'wss://');
 
 class BackendClient {
+  public baseUrl = API_BASE;
   private ws: WebSocket | null = null;
   private eventListeners: Array<(event: LiveEcosystemEvent) => void> = [];
 
@@ -15,7 +17,7 @@ class BackendClient {
 
   private connectWebSocket() {
     try {
-      this.ws = new WebSocket('ws://localhost:8000/ws/events');
+      this.ws = new WebSocket(`${WS_BASE}/ws/events`);
       this.ws.onmessage = (msg) => {
         try {
           const data = JSON.parse(msg.data);
