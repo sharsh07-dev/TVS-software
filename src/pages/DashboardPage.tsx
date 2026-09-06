@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FileText, ShieldAlert, Network, Search, Bell,
-  ArrowRight, TrendingUp, ChevronRight, Radio
+  ArrowRight, ChevronRight, Radio
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 

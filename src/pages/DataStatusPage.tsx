@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Database, CheckCircle, AlertCircle, Clock, RefreshCw } from 'lucide-react';
 
 type Status = 'Operational' | 'Delayed' | 'Error' | 'Simulated';

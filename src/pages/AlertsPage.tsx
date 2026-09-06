@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, ArrowRight, ChevronDown, Filter } from 'lucide-react';
+import { Bell, ArrowRight, Filter } from 'lucide-react';
 
 const API = 'http://localhost:8000';
 

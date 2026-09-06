@@ -12,8 +12,7 @@ import {
   Database,
   Activity,
   Settings,
-  BarChart2,
-  Heart
+  BarChart2
 } from 'lucide-react';
 import eerisLogo from '../../assets/eeris-logo.svg';
 
