@@ -1,0 +1,718 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+/* ============================================================
+   TVS CREDIT — EERIS ENTERPRISE DESIGN SYSTEM
+   Brand: Deep Navy + TVS Green + White surfaces
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* Brand Colors */
+    --tvs-green: #1a7a4a;
+    --tvs-green-dark: #145f39;
+    --tvs-green-light: #e8f5ee;
+    --tvs-green-mid: #2d9660;
+    --tvs-navy: #0d2137;
+    --tvs-navy-mid: #1a3550;
+    --tvs-navy-light: #243d56;
+
+    /* Surface Colors */
+    --surface-white: #ffffff;
+    --surface-page: #f5f6f8;
+    --surface-alt: #f0f2f5;
+    --surface-card: #ffffff;
+
+    /* Border */
+    --border-default: #e1e5eb;
+    --border-subtle: #edf0f4;
+
+    /* Text */
+    --text-primary: #0d2137;
+    --text-secondary: #4a5568;
+    --text-muted: #8896a7;
+    --text-inverse: #ffffff;
+
+    /* Risk Colors */
+    --risk-high: #c41e3a;
+    --risk-high-bg: #fef2f2;
+    --risk-high-border: #fca5a5;
+    --risk-medium: #b45309;
+    --risk-medium-bg: #fffbeb;
+    --risk-medium-border: #fcd34d;
+    --risk-low: #15803d;
+    --risk-low-bg: #f0fdf4;
+    --risk-low-border: #86efac;
+
+    /* Status */
+    --status-operational: #15803d;
+    --status-warning: #b45309;
+    --status-down: #c41e3a;
+
+    /* Spacing tokens */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Shadow */
+    --shadow-card: 0 1px 3px rgba(13, 33, 55, 0.08), 0 1px 2px rgba(13, 33, 55, 0.04);
+    --shadow-elevated: 0 4px 12px rgba(13, 33, 55, 0.1);
+
+    /* Border radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--surface-page);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+/* ============================================================
+   TYPOGRAPHY SCALE
+   ============================================================ */
+
+.text-display { font-size: 3.5rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
+.text-h1 { font-size: 2.25rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+.text-h2 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+.text-h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.4; }
+.text-h4 { font-size: 0.9375rem; font-weight: 600; line-height: 1.4; }
+.text-body { font-size: 0.875rem; font-weight: 400; line-height: 1.6; }
+.text-small { font-size: 0.8125rem; font-weight: 400; line-height: 1.5; }
+.text-xs-label { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* ============================================================
+   ENTERPRISE TABLE STYLES
+   ============================================================ */
+
+.eeris-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.eeris-table thead tr {
+  background-color: #f8f9fc;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.eeris-table thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.eeris-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background-color 0.1s ease;
+  height: 44px;
+}
+
+.eeris-table tbody tr:hover {
+  background-color: #f8f9fc;
+}
+
+.eeris-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.eeris-table tbody td {
+  padding: 10px 14px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   ENTERPRISE CARD
+   ============================================================ */
+
+.eeris-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+.eeris-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.eeris-card-body {
+  padding: 20px;
+}
+
+/* ============================================================
+   ENTERPRISE METRIC CARD
+   ============================================================ */
+
+.metric-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.metric-card-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.metric-card-value {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.metric-card-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   RISK BADGES
+   ============================================================ */
+
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.risk-badge-high {
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+  border: 1px solid var(--risk-high-border);
+}
+
+.risk-badge-medium {
+  background: var(--risk-medium-bg);
+  color: var(--risk-medium);
+  border: 1px solid var(--risk-medium-border);
+}
+
+.risk-badge-low {
+  background: var(--risk-low-bg);
+  color: var(--risk-low);
+  border: 1px solid var(--risk-low-border);
+}
+
+/* ============================================================
+   STATUS INDICATORS
+   ============================================================ */
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-operational { background-color: var(--status-operational); }
+.status-warning { background-color: var(--status-warning); }
+.status-down { background-color: var(--status-down); }
+
+/* ============================================================
+   SIDEBAR NAV
+   ============================================================ */
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #e2e8f0;
+}
+
+.sidebar-nav-item.active {
+  background-color: var(--tvs-green);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.sidebar-nav-section {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #475569;
+  padding: 0 12px;
+  margin-bottom: 4px;
+  margin-top: 20px;
+}
+
+/* ============================================================
+   BUTTON SYSTEM
+   ============================================================ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--tvs-green);
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background: var(--tvs-green-dark);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-white);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: var(--surface-alt);
+  border-color: #c1cad6;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef2f2;
+  color: var(--risk-high);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--risk-high-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-danger:hover {
+  background: #fee2e2;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+   FORM INPUTS
+   ============================================================ */
+
+.eeris-input {
+  width: 100%;
+  background: var(--surface-white);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+}
+
+.eeris-input:focus {
+  border-color: var(--tvs-green);
+  box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.12);
+}
+
+.eeris-input::placeholder {
+  color: var(--text-muted);
+}
+
+.eeris-select {
+  background: var(--surface-white);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 7px 28px 7px 10px;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238896a7' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  font-family: inherit;
+}
+
+.eeris-select:focus {
+  border-color: var(--tvs-green);
+  box-shadow: 0 0 0 3px rgba(26, 122, 74, 0.12);
+}
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.page-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   LANDING PAGE SPECIFIC
+   ============================================================ */
+
+.landing-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--tvs-navy);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.landing-hero {
+  background: linear-gradient(135deg, var(--tvs-navy) 0%, var(--tvs-navy-mid) 60%, #0d3320 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-section {
+  padding: 80px 0;
+}
+
+.landing-section-alt {
+  background: var(--tvs-green-light);
+  padding: 80px 0;
+}
+
+.landing-section-dark {
+  background: var(--tvs-navy);
+  padding: 80px 0;
+  color: white;
+}
+
+.landing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.landing-headline {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tvs-green-mid);
+  margin-bottom: 12px;
+}
+
+.landing-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.landing-title-white {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: white;
+}
+
+.landing-title .accent {
+  color: var(--tvs-green-mid);
+}
+
+.landing-title-white .accent {
+  color: #4ade80;
+}
+
+/* ============================================================
+   REACT FLOW OVERRIDES
+   ============================================================ */
+
+.react-flow__node {
+  border-radius: 8px;
+  box-shadow: none;
+  font-family: inherit;
+}
+
+.react-flow__controls {
+  box-shadow: var(--shadow-card) !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--border-default) !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  border-bottom: 1px solid var(--border-subtle) !important;
+  background: var(--surface-white) !important;
+  color: var(--text-secondary) !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--surface-alt) !important;
+}
+
+.react-flow__minimap {
+  border: 1px solid var(--border-default) !important;
+  border-radius: 6px !important;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c1cad6; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-slide-in { animation: slideIn 0.2s ease; }
+.animate-fade-in { animation: fadeIn 0.2s ease; }
+.pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+/* ============================================================
+   TOAST NOTIFICATION
+   ============================================================ */
+
+.eeris-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  background: var(--tvs-navy);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(13, 33, 55, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  max-width: 400px;
+  animation: slideIn 0.25s ease;
+}
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.breadcrumb a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.1s ease;
+}
+
+.breadcrumb a:hover {
+  color: var(--tvs-green);
+}
+
+.breadcrumb-sep {
+  color: var(--border-default);
+}
+
+.breadcrumb-current {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ============================================================
+   CHART LEGEND
+   ============================================================ */
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   INVESTIGATION STATUS BADGES
+   ============================================================ */
+
+.inv-status-open {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inv-status-review {
+  background: var(--risk-medium-bg);
+  color: var(--risk-medium);
+  border: 1px solid var(--risk-medium-border);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inv-status-escalated {
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+  border: 1px solid var(--risk-high-border);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inv-status-resolved {
+  background: var(--risk-low-bg);
+  color: var(--risk-low);
+  border: 1px solid var(--risk-low-border);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inv-status-fp {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

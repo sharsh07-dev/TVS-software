@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Blue rounded E body -->
+  <rect x="6" y="6" width="110" height="188" rx="22" fill="url(#blueBody)"/>
+
+  <!-- E horizontal bars (white cutouts) -->
+  <rect x="26" y="28" width="78" height="26" rx="6" fill="white"/>
+  <rect x="26" y="87" width="62" height="24" rx="6" fill="white"/>
+  <rect x="26" y="146" width="78" height="26" rx="6" fill="white"/>
+
+  <!-- Network graph edges -->
+  <line x1="84" y1="50" x2="126" y2="100" stroke="#1a7a4a" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="84" y1="150" x2="126" y2="100" stroke="#1a7a4a" stroke-width="4.5" stroke-linecap="round"/>
+  <line x1="84" y1="50" x2="84" y2="150" stroke="#1a7a4a" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="126" y1="100" x2="162" y2="58" stroke="#1a7a4a" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Network nodes -->
+  <!-- Center largest node -->
+  <circle cx="126" cy="100" r="22" fill="url(#greenNode)" stroke="white" stroke-width="3"/>
+  <!-- Top-left node -->
+  <circle cx="84" cy="50" r="15" fill="url(#greenNode)" stroke="white" stroke-width="2.5"/>
+  <!-- Bottom-left node -->
+  <circle cx="84" cy="150" r="15" fill="url(#greenNode)" stroke="white" stroke-width="2.5"/>
+  <!-- Top-right small node -->
+  <circle cx="162" cy="58" r="11" fill="url(#greenNode)" stroke="white" stroke-width="2"/>
+
+  <defs>
+    <linearGradient id="blueBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e4fc2"/>
+      <stop offset="55%" stop-color="#0f3580"/>
+      <stop offset="100%" stop-color="#0a1f55"/>
+    </linearGradient>
+    <linearGradient id="greenNode" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4ade80"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+  </defs>
+</svg>
