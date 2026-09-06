@@ -37,7 +37,13 @@ export const InvestigationPage: React.FC = () => {
 
   React.useEffect(() => {
     backendClient.fetchApplication(appId).then(data => {
-      setApplication(data);
+      if (data) {
+        setApplication(data);
+      } else {
+        // Fallback to mock data if backend is offline
+        const mockApp = riskService.getApplicationById(appId) || riskService.getApplications()[0];
+        setApplication(mockApp);
+      }
       setLoading(false);
     });
   }, [appId]);

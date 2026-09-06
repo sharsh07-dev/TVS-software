@@ -31,8 +31,15 @@ export const ApplicationDetailPage: React.FC = () => {
 
   React.useEffect(() => {
     backendClient.fetchApplication(appId).then(data => {
-      setApplication(data);
-      if (data) setStatusState(data.status || 'Under Review');
+      if (data) {
+        setApplication(data);
+        setStatusState(data.status || 'Under Review');
+      } else {
+        // Fallback to mock data if backend is offline
+        const mockApp = riskService.getApplicationById(appId) || riskService.getApplications()[0];
+        setApplication(mockApp);
+        setStatusState(mockApp.status || 'Under Review');
+      }
       setLoading(false);
     });
   }, [appId]);
