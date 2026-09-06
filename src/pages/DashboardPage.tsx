@@ -5,6 +5,7 @@ import {
   ArrowRight, ChevronRight, Radio
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { backendClient } from '../services/backendClient';
 
 const API = 'http://localhost:8000';
 
@@ -101,7 +102,7 @@ export const DashboardPage: React.FC = () => {
       setAlerts((Array.isArray(alts) ? alts : []).slice(0, 3));
     }).finally(() => setLoading(false));
 
-    // Simulated live event feed
+    // Simulated live event feed initial state
     setEvents([
       { id: 'e1', time: '10:01:41', type: 'INVESTIGATION', text: 'INV-78287 opened for Sunita Verma', appId: 'APP-78287' },
       { id: 'e2', time: '10:01:35', type: 'ALERT', text: 'ECO-1024 risk elevated to 84', ecosystemId: 'ECO-1024' },
@@ -109,6 +110,23 @@ export const DashboardPage: React.FC = () => {
       { id: 'e4', time: '10:01:25', type: 'LINK', text: 'Borrower B31 linked to shared device DEV-9810', appId: 'APP-78287' },
       { id: 'e5', time: '10:01:13', type: 'LINK', text: 'Dealer Apex Auto linked to APP-78287', appId: 'APP-78287' },
     ]);
+    
+    // Subscribe to real-time events
+    const unsubscribe = backendClient.subscribeEvents((event: any) => {
+      setEvents(prev => {
+        const newEvent = {
+          id: `ev-${Date.now()}`,
+          time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          type: event.type === 'INVESTIGATION_STARTED' ? 'INVESTIGATION' : event.type,
+          text: event.message || event.type,
+          appId: event.case_id || event.application_id,
+          ecosystemId: event.ecosystem_id
+        };
+        return [newEvent, ...prev].slice(0, 20); // Keep last 20
+      });
+    });
+    
+    return () => unsubscribe();
   }, []);
 
   const riskDist = metrics?.risk_distribution || { low: 0, medium: 0, high: 0 };

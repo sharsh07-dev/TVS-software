@@ -8,10 +8,10 @@ import {
   Bell,
   ShieldAlert,
   Store,
-  Brain,
+  
   Database,
-  Activity,
-  Settings,
+  
+  
   BarChart2
 } from 'lucide-react';
 import eerisLogo from '../../assets/eeris-logo.svg';
@@ -28,10 +28,7 @@ const NAV_MAIN = [
 ];
 
 const NAV_ADMIN = [
-  { label: 'Model Insights', path: '/app/model-insights', icon: Brain },
   { label: 'Data Status', path: '/app/data-status', icon: Database },
-  { label: 'System Health', path: '/app/system-health', icon: Activity },
-  { label: 'Settings', path: '/app/settings', icon: Settings },
 ];
 
 export const Sidebar: React.FC = () => {

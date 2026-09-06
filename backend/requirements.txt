@@ -5,3 +5,10 @@ SQLAlchemy
 pydantic
 python-dotenv
 httpx
+psycopg2-binary
+neo4j
+xgboost
+shap
+scikit-learn
+pandas
+pytest

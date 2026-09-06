@@ -9,9 +9,7 @@ import { RiskAnalysisPage } from './pages/RiskAnalysisPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { InvestigationPage } from './pages/InvestigationPage';
 import { DealersPage } from './pages/DealersPage';
-import { ModelInsightsPage } from './pages/ModelInsightsPage';
 import { DataStatusPage } from './pages/DataStatusPage';
-import { SystemHealthPage } from './pages/SystemHealthPage';
 import { ReportsPage } from './pages/ReportsPage';
 
 export function App() {
@@ -34,9 +32,7 @@ export function App() {
           <Route path="investigations/:id" element={<InvestigationPage />} />
           <Route path="dealers" element={<DealersPage />} />
           <Route path="reports" element={<ReportsPage />} />
-          <Route path="model-insights" element={<ModelInsightsPage />} />
           <Route path="data-status" element={<DataStatusPage />} />
-          <Route path="system-health" element={<SystemHealthPage />} />
           <Route path="*" element={<Navigate to="/app/overview" replace />} />
         </Route>
 

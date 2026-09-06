@@ -3,9 +3,19 @@ import { User, Smartphone, Store, FileText } from 'lucide-react';
 
 interface MiniGraphProps {
   variant?: 'preview' | 'investigation';
+  appId?: string;
+  applicantName?: string;
+  deviceId?: string;
+  dealerName?: string;
 }
 
-export const MiniEcosystemGraph: React.FC<MiniGraphProps> = ({ variant = 'preview' }) => {
+export const MiniEcosystemGraph: React.FC<MiniGraphProps> = ({ 
+  variant = 'preview',
+  appId = 'APP-78287',
+  applicantName = 'Sunita Verma',
+  deviceId = 'DEV-9810',
+  dealerName = 'Apex Auto'
+}) => {
   if (variant === 'preview') {
     return (
       <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 flex items-center justify-between relative overflow-hidden">
@@ -18,7 +28,7 @@ export const MiniEcosystemGraph: React.FC<MiniGraphProps> = ({ variant = 'previe
             <User className="w-4 h-4" />
           </div>
           <div className="font-bold text-[11px] text-slate-800 leading-tight">Borrower</div>
-          <div className="text-[9px] text-slate-400">Sunita Verma</div>
+          <div className="text-[9px] text-slate-400">{applicantName}</div>
         </div>
 
         {/* Node 2: Shared Device */}
@@ -27,7 +37,7 @@ export const MiniEcosystemGraph: React.FC<MiniGraphProps> = ({ variant = 'previe
             <Smartphone className="w-4 h-4" />
           </div>
           <div className="font-bold text-[11px] text-red-900 leading-tight">Shared Device</div>
-          <div className="text-[9px] text-red-600 font-semibold">DEV-9810 (7 apps)</div>
+          <div className="text-[9px] text-red-600 font-semibold">{deviceId} (7 apps)</div>
         </div>
 
         {/* Node 3: Dealer */}
@@ -36,7 +46,7 @@ export const MiniEcosystemGraph: React.FC<MiniGraphProps> = ({ variant = 'previe
             <Store className="w-4 h-4" />
           </div>
           <div className="font-bold text-[11px] text-slate-800 leading-tight">Dealer</div>
-          <div className="text-[9px] text-slate-400">Apex Auto</div>
+          <div className="text-[9px] text-slate-400">{dealerName}</div>
         </div>
       </div>
     );
@@ -66,19 +76,19 @@ export const MiniEcosystemGraph: React.FC<MiniGraphProps> = ({ variant = 'previe
         <div className="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-1">
           <FileText className="w-3.5 h-3.5" />
         </div>
-        <div className="font-bold text-xs text-blue-900">APP-78287</div>
-        <div className="text-[9px] text-slate-500 font-semibold">S. Verma</div>
+        <div className="font-bold text-xs text-blue-900">{appId}</div>
+        <div className="text-[9px] text-slate-500 font-semibold">{applicantName}</div>
       </div>
 
       {/* Top-Left Node: DEV-9810 */}
       <div className="absolute top-4 left-6 bg-red-50 border border-red-300 rounded-lg p-2 text-center shadow-xs z-10 w-24">
-        <div className="font-bold text-[10px] text-red-900">DEV-9810</div>
+        <div className="font-bold text-[10px] text-red-900">{deviceId}</div>
         <div className="text-[8px] text-red-600">Shared Hardware</div>
       </div>
 
       {/* Top-Right Node: Apex Auto */}
       <div className="absolute top-4 right-6 bg-white border border-slate-300 rounded-lg p-2 text-center shadow-xs z-10 w-24">
-        <div className="font-bold text-[10px] text-slate-800">Apex Auto</div>
+        <div className="font-bold text-[10px] text-slate-800">{dealerName}</div>
         <div className="text-[8px] text-slate-500">POS-44021</div>
       </div>
 

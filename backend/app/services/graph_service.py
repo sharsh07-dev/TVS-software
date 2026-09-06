@@ -1,76 +1,99 @@
-from app.database import get_db
+from app.neo4j_driver import neo4j_driver
+from datetime import datetime
+import random
+import logging
 
-class EntityResolutionService:
-    def resolve_application_entities(self, app_data: dict):
-        # Resolves borrower, device, dealer, guarantor, location links
-        return {
-            "borrower_id": f"BORR-{app_data['pan']}",
-            "device_id": app_data["device_id"],
-            "dealer_id": f"DLR-{app_data['dealer'].replace(' ', '_')}",
-            "guarantor_id": app_data["guarantor"],
-            "location_id": f"LOC-{app_data['location'].split('•')[0].strip()}"
-        }
+logger = logging.getLogger(__name__)
 
 class GraphService:
-    def get_ecosystem_graph(self, ecosystem_id: str = "ECO-1024", timeline_stage: str = "Current"):
-        if ecosystem_id == "ECO-00173":
-            # Legitimate Rural Community Graph
-            nodes = [
-                {"id": "b-rural-1", "type": "borrower", "position": {"x": 250, "y": 60}, "data": {"label": "Ramesh Patel", "subtitle": "Village Farmer", "badge": "PAN: RMP1040"}},
-                {"id": "b-rural-2", "type": "borrower", "position": {"x": 650, "y": 60}, "data": {"label": "Suresh Patel", "subtitle": "Household Member", "badge": "PAN: SMP2080"}},
-                {"id": "app-rural-1", "type": "application", "position": {"x": 380, "y": 180}, "data": {"label": "APP-90112", "risk": "28", "subtitle": "Kisan Credit Loan"}},
-                {"id": "app-rural-2", "type": "application", "position": {"x": 520, "y": 180}, "data": {"label": "APP-90113", "risk": "24", "subtitle": "Tractor Loan"}},
-                {"id": "device-rural", "type": "deviceNexus", "position": {"x": 450, "y": 320}, "data": {"label": "DEV-RURAL-TAB", "tagline": "SHARED HOUSEHOLD DEVICE", "badge": "Family Shared Tablet"}},
-                {"id": "dealer-rural", "type": "dealer", "position": {"x": 280, "y": 420}, "data": {"label": "Village Agro Motors", "subtitle": "Local Verified Dealer"}},
-                {"id": "gnt-rural", "type": "guarantor", "position": {"x": 620, "y": 420}, "data": {"label": "Village Sarpanch", "subtitle": "Family Guarantor"}}
-            ]
-            edges = [
-                {"id": "er1", "source": "b-rural-1", "target": "app-rural-1", "label": "Applicant", "style": {"stroke": "#93c5fd", "strokeWidth": 2}},
-                {"id": "er2", "source": "b-rural-2", "target": "app-rural-2", "label": "Applicant", "style": {"stroke": "#93c5fd", "strokeWidth": 2}},
-                {"id": "er3", "source": "app-rural-1", "target": "device-rural", "label": "Household Device", "style": {"stroke": "#10b981", "strokeWidth": 2}},
-                {"id": "er4", "source": "app-rural-2", "target": "device-rural", "label": "Household Device", "style": {"stroke": "#10b981", "strokeWidth": 2}},
-                {"id": "er5", "source": "dealer-rural", "target": "app-rural-1", "label": "Local Dealer", "style": {"stroke": "#cbd5e1", "strokeWidth": 1.5}},
-                {"id": "er6", "source": "gnt-rural", "target": "app-rural-2", "label": "Family Guarantor", "style": {"stroke": "#a5b4fc", "strokeWidth": 1.5}}
-            ]
-            return {"nodes": nodes, "edges": edges, "ecosystem_id": ecosystem_id, "is_legitimate": True}
+    def get_ecosystem_graph(self, ecosystem_id: str, timeline_stage: str = "Current", timestamp: str = None):
+        # We need to construct the graph by querying Neo4j.
+        # For simplicity, we find all applications in this ecosystem and their connected entities.
+        # Real logic uses the ecosystem_id (which could be the seed application ID).
+        
+        # Determine temporal cutoff
+        cutoff = "9999-12-31" # far future
+        if timestamp:
+            cutoff = timestamp
+        elif timeline_stage == "Day 1":
+            cutoff = "2024-01-02" # just an example temporal boundary
+        elif timeline_stage == "Day 7":
+            cutoff = "2024-01-08"
+        elif timeline_stage == "Day 14":
+            cutoff = "2024-01-15"
+        elif timeline_stage == "Day 21":
+            cutoff = "2024-01-22"
+            
+        # Cypher to get subgraph where relationships occurred before cutoff
+        query = """
+        MATCH (a:Application)-[r]-(other)
+        WHERE (a.id = $eco_id OR $eco_id = 'ECO-1024') 
+          AND (r.timestamp IS NULL OR r.timestamp <= $cutoff)
+        RETURN a, r, other
+        """
+        results = neo4j_driver.execute_read(query, eco_id=ecosystem_id.replace("ECO-", ""), cutoff=cutoff)
+        
+        nodes_dict = {}
+        edges_list = []
+        
+        def add_node(n, n_type, label, subtitle=""):
+            if n["id"] not in nodes_dict:
+                nodes_dict[n["id"]] = {
+                    "id": n["id"],
+                    "type": n_type,
+                    "position": {"x": random.randint(100, 800), "y": random.randint(100, 600)},
+                    "data": {"label": label, "subtitle": subtitle}
+                }
+                
+        for row in results:
+            app_node = row["a"]
+            rel = row["r"]
+            other_node = row["other"]
+            
+            add_node(app_node, "application", app_node["id"], "Application")
+            
+            other_type = "borrower"
+            label = other_node["id"]
+            subtitle = ""
+            
+            if "Borrower" in other_node.get("labels", []) or "BORR" in other_node["id"]:
+                other_type = "borrower"
+                label = other_node.get("name", label)
+                subtitle = f"PAN: {other_node.get('pan', '')}"
+            elif "Device" in other_node.get("labels", []) or "DEV" in other_node["id"]:
+                other_type = "deviceNexus"
+            elif "Dealer" in other_node.get("labels", []) or "DLR" in other_node["id"]:
+                other_type = "dealer"
+                label = other_node.get("name", label)
+            elif "Guarantor" in other_node.get("labels", []) or "GNT" in other_node["id"]:
+                other_type = "guarantor"
+                
+            add_node(other_node, other_type, label, subtitle)
+            
+            edge_id = f"{app_node['id']}-{other_node['id']}"
+            edge = {
+                "id": edge_id,
+                "source": app_node["id"] if rel[1] == "SUBMITTED" else other_node["id"],
+                "target": other_node["id"] if rel[1] == "SUBMITTED" else app_node["id"],
+                "label": rel[1],
+                "style": {"stroke": "#ef4444", "strokeWidth": 2}
+            }
+            # Add to edges if not already present
+            if not any(e["id"] == edge_id for e in edges_list):
+                edges_list.append(edge)
+                
+        # If no results (e.g. empty DB), fallback to mock or empty
+        if not nodes_dict:
+            return {"nodes": [], "edges": [], "ecosystem_id": ecosystem_id, "is_legitimate": False}
+            
+        # Layout adjustment could be done here (e.g. force-directed graph with networkx)
+        # For this prototype, random positions are assigned during node addition, which React Flow handles.
+        
+        return {
+            "nodes": list(nodes_dict.values()),
+            "edges": edges_list,
+            "ecosystem_id": ecosystem_id,
+            "is_legitimate": False
+        }
 
-        # Default ECO-1024 Fraud Ring
-        nodes = [
-            {"id": "borrower-1", "type": "borrower", "position": {"x": 280, "y": 40}, "data": {"label": "Sunita Verma", "subtitle": "Borrower (APP-78287)", "badge": "PAN: ABCPS9182F"}},
-            {"id": "app-78287", "type": "application", "position": {"x": 440, "y": 140}, "data": {"label": "APP-78287", "risk": "84", "subtitle": "Hero Application"}},
-            {"id": "device-9810", "type": "deviceNexus", "position": {"x": 570, "y": 260}, "data": {"label": "DEV-9810", "tagline": "SHARED NEXUS", "badge": "4 Concurrently Active Loans"}},
-            {"id": "app-78294", "type": "application", "position": {"x": 720, "y": 140}, "data": {"label": "APP-78294", "risk": "82", "subtitle": "Auto Loan"}},
-            {"id": "borrower-2", "type": "borrower", "position": {"x": 840, "y": 40}, "data": {"label": "K. Rao", "subtitle": "Borrower", "badge": "PAN: XYZPS4401K"}},
-            {"id": "dealer-apex", "type": "dealer", "position": {"x": 280, "y": 310}, "data": {"label": "Apex Auto", "subtitle": "Dealer (DL-4021)"}},
-            {"id": "account-icici", "type": "account", "position": {"x": 320, "y": 460}, "data": {"label": "pay-apex@icici", "subtitle": "UPI Settlement Node"}},
-            {"id": "app-78308", "type": "application", "position": {"x": 570, "y": 440}, "data": {"label": "APP-78308", "risk": "89", "subtitle": "Consumer Loan"}},
-            {"id": "borrower-3", "type": "borrower", "position": {"x": 440, "y": 560}, "data": {"label": "M. Patel", "subtitle": "Borrower"}},
-            {"id": "borrower-4", "type": "borrower", "position": {"x": 710, "y": 560}, "data": {"label": "A. Singh", "subtitle": "Borrower"}},
-            {"id": "guarantor-8890", "type": "guarantor", "position": {"x": 860, "y": 310}, "data": {"label": "GNT-8890", "subtitle": "Repeated Guarantor"}}
-        ]
-        edges = [
-            {"id": "e-b1-app1", "source": "borrower-1", "target": "app-78287", "label": "Applicant PAN", "style": {"stroke": "#93c5fd", "strokeWidth": 2}},
-            {"id": "e-app1-dev", "source": "app-78287", "target": "device-9810", "label": "Shared IMEI (Primary)", "style": {"stroke": "#ef4444", "strokeWidth": 3}},
-            {"id": "e-app2-dev", "source": "app-78294", "target": "device-9810", "label": "Shared IMEI (Secondary)", "style": {"stroke": "#ef4444", "strokeWidth": 2, "strokeDasharray": "4 4"}},
-            {"id": "e-b2-app2", "source": "borrower-2", "target": "app-78294", "label": "Applicant PAN", "style": {"stroke": "#93c5fd", "strokeWidth": 2}},
-            {"id": "e-dealer-app1", "source": "dealer-apex", "target": "app-78287", "label": "Sourced Dealer", "style": {"stroke": "#cbd5e1", "strokeWidth": 1.5}},
-            {"id": "e-dealer-account", "source": "dealer-apex", "target": "account-icici", "label": "UPI routed", "style": {"stroke": "#10b981", "strokeWidth": 2}},
-            {"id": "e-dev-app3", "source": "device-9810", "target": "app-78308", "label": "Device Reuse (+3h window)", "style": {"stroke": "#ef4444", "strokeWidth": 2}},
-            {"id": "e-app3-b3", "source": "app-78308", "target": "borrower-3", "style": {"stroke": "#cbd5e1", "strokeWidth": 1.5}},
-            {"id": "e-app3-b4", "source": "app-78308", "target": "borrower-4", "style": {"stroke": "#cbd5e1", "strokeWidth": 1.5}},
-            {"id": "e-gnt-app2", "source": "guarantor-8890", "target": "app-78294", "label": "Listed Guarantor", "style": {"stroke": "#a5b4fc", "strokeWidth": 1.5}}
-        ]
-
-        if timeline_stage == "Before Alert" or timeline_stage == "Day 1":
-            nodes = [n for n in nodes if n["id"] in ["borrower-1", "app-78287", "device-9810"]]
-            active_ids = [n["id"] for n in nodes]
-            edges = [e for e in edges if e["source"] in active_ids and e["target"] in active_ids]
-        elif timeline_stage == "Alert" or timeline_stage == "Day 7" or timeline_stage == "Day 14":
-            nodes = [n for n in nodes if n["id"] in ["borrower-1", "app-78287", "device-9810", "app-78294", "borrower-2", "dealer-apex", "guarantor-8890"]]
-            active_ids = [n["id"] for n in nodes]
-            edges = [e for e in edges if e["source"] in active_ids and e["target"] in active_ids]
-
-        return {"nodes": nodes, "edges": edges, "ecosystem_id": ecosystem_id, "is_legitimate": False}
-
-entity_resolution_service = EntityResolutionService()
 graph_service = GraphService()

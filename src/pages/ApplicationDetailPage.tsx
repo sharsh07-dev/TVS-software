@@ -14,18 +14,34 @@ import {
   Sparkles
 } from 'lucide-react';
 import { riskService } from '../services/riskService';
+import { backendClient } from '../services/backendClient';
 import { MiniEcosystemGraph } from '../components/graph/MiniEcosystemGraph';
 
 export const ApplicationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const appId = id || 'APP-78287';
-  const application = riskService.getApplicationById(appId) || riskService.getApplications()[0];
-  const routing = riskService.getDecisionRouting(application);
+  
+  const [application, setApplication] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [statusState, setStatusState] = useState(application.status);
+  const [statusState, setStatusState] = useState('');
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [activeVerificationModal, setActiveVerificationModal] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    backendClient.fetchApplication(appId).then(data => {
+      setApplication(data);
+      if (data) setStatusState(data.status || 'Under Review');
+      setLoading(false);
+    });
+  }, [appId]);
+
+  if (loading || !application) {
+    return <div className="p-8 text-center text-slate-500">Loading application details...</div>;
+  }
+
+  const routing = riskService.getDecisionRouting(application);
 
   const triggerToast = (msg: string) => {
     setToastMsg(msg);
@@ -47,11 +63,12 @@ export const ApplicationDetailPage: React.FC = () => {
     triggerToast(`Application ${application.id} placed ON HOLD in risk investigation queue.`);
   };
 
-  const handleAssignInvestigator = () => {
-    triggerToast(`Case ${application.id} assigned to Senior Risk Analyst Arjun Mehta.`);
+  const handleAssignInvestigator = async () => {
+    await backendClient.startInvestigation(`CASE-${application.id}`, 'Senior Risk Analyst');
+    triggerToast(`Case ${application.id} assigned to you.`);
   };
 
-  const divergence = application.ecosystemRisk - application.individualRisk;
+  const divergence = (application.current_ecosystem_risk || application.ecosystem_risk || 0) - (application.individual_risk || application.individualRisk || 0);
 
   return (
     <div className="space-y-6">
@@ -68,7 +85,7 @@ export const ApplicationDetailPage: React.FC = () => {
         <div className="flex items-center gap-2 text-slate-500 font-medium">
           <Link to="/app/applications" className="hover:text-blue-600">Applications</Link>
           <span>/</span>
-          <span className="font-bold text-slate-900">{application.id} ({application.applicantName})</span>
+          <span className="font-bold text-slate-900">{application.id} ({application.applicant_name || application.applicantName})</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -90,7 +107,7 @@ export const ApplicationDetailPage: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Applicant: <strong className="text-slate-900">{application.applicantName}</strong> • Phone: {application.phone} • Applied Amount: <strong className="text-slate-900">{application.appliedAmount}</strong>
+            Applicant: <strong className="text-slate-900">{application.applicant_name || application.applicantName}</strong> • Phone: {application.phone || '+91 9XXXX XXXXX'} • Applied Amount: <strong className="text-slate-900">{application.applied_amount || application.appliedAmount || '₹0'}</strong>
           </p>
         </div>
 
@@ -109,10 +126,10 @@ export const ApplicationDetailPage: React.FC = () => {
         <Info className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
           <h3 className="font-bold text-amber-900 text-sm">
-            CORE EERIS INSIGHT: Individual Risk ({application.individualRisk}) vs Ecosystem Risk ({application.ecosystemRisk})
+            CORE EERIS INSIGHT: Individual Risk ({application.individual_risk || application.individualRisk}) vs Ecosystem Risk ({application.current_ecosystem_risk || application.ecosystem_risk || application.ecosystemRisk})
           </h3>
           <p className="text-xs text-amber-800 font-medium">
-            “Low individual risk does not always mean low ecosystem risk.” While Sunita Verma has a clean individual credit profile (31/100), the ecosystem topological risk (84/100) indicates shared device collision and merchant velocity concentration.
+            “Low individual risk does not always mean low ecosystem risk.” While {application.applicant_name || application.applicantName} has a clean individual credit profile ({application.individual_risk || application.individualRisk}/100), the ecosystem topological risk ({application.current_ecosystem_risk || application.ecosystem_risk || application.ecosystemRisk}/100) indicates shared device collision and merchant velocity concentration.
           </p>
         </div>
       </div>
@@ -148,9 +165,9 @@ export const ApplicationDetailPage: React.FC = () => {
               <UserCheck className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-2xl font-black text-slate-900 mt-1">
-              {application.individualRisk} <span className="text-xs text-slate-400 font-normal">/ 100</span>
+              {application.individual_risk || application.individualRisk} <span className="text-xs text-slate-400 font-normal">/ 100</span>
             </div>
-            <div className="text-[10px] font-bold text-emerald-600 uppercase mt-0.5">LOW BASE RISK</div>
+            <div className="text-[10px] font-bold text-emerald-600 uppercase mt-0.5">{application.individual_risk_level || 'LOW'} BASE RISK</div>
           </div>
 
           <div className="bg-red-50/70 border border-red-200 rounded-xl p-4 text-left">
@@ -159,7 +176,7 @@ export const ApplicationDetailPage: React.FC = () => {
               <Network className="w-4 h-4 text-red-600" />
             </div>
             <div className="text-2xl font-black text-red-600 mt-1">
-              {application.ecosystemRisk} <span className="text-xs text-red-400 font-normal">/ 100</span>
+              {application.current_ecosystem_risk || application.ecosystem_risk || application.ecosystemRisk} <span className="text-xs text-red-400 font-normal">/ 100</span>
             </div>
             <div className="text-[10px] font-bold text-red-600 uppercase mt-0.5">DIVERGENCE +{divergence}</div>
           </div>
@@ -282,13 +299,13 @@ export const ApplicationDetailPage: React.FC = () => {
 
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
           <div className="flex items-center justify-between text-xs font-bold text-slate-700 flex-wrap gap-2">
-            <span className="bg-white px-2.5 py-1 rounded border">Device {application.deviceId}</span>
+            <span className="bg-white px-2.5 py-1 rounded border">Device {application.device_id || 'Unknown'}</span>
             <span>→</span>
             <span className="bg-white px-2.5 py-1 rounded border">Used by 4 borrowers</span>
             <span>→</span>
             <span className="bg-white px-2.5 py-1 rounded border">Rapid 48h timing</span>
             <span>→</span>
-            <span className="bg-white px-2.5 py-1 rounded border">Dealer {application.dealer} concentration</span>
+            <span className="bg-white px-2.5 py-1 rounded border">Dealer {application.dealer || 'Unknown'} concentration</span>
             <span>→</span>
             <span className="bg-red-100 text-red-800 px-2.5 py-1 rounded border border-red-200">+53 Risk Contribution</span>
             <span>→</span>
@@ -306,7 +323,13 @@ export const ApplicationDetailPage: React.FC = () => {
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <MiniEcosystemGraph variant="investigation" />
+        <MiniEcosystemGraph 
+          variant="investigation" 
+          appId={application.id} 
+          applicantName={application.applicant_name || application.applicantName} 
+          deviceId={application.device_id || 'DEV-Unknown'} 
+          dealerName={application.dealer || 'Unknown Dealer'} 
+        />
       </div>
 
       {/* SECTION 6: VERIFICATION WORKFLOW MODAL */}
@@ -327,7 +350,7 @@ export const ApplicationDetailPage: React.FC = () => {
               <p className="text-slate-600">Select target entity evidence to audit for Application <strong>{application.id}</strong>:</p>
               
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5">
-                <span className="font-bold text-slate-900 block">Target Entity: Dealer Apex Auto (DL-4021) &amp; Device DEV-9810</span>
+                <span className="font-bold text-slate-900 block">Target Entity: Dealer {application.dealer || 'Apex Auto'} &amp; Device {application.device_id || 'DEV-9810'}</span>
                 <p className="text-slate-500">Applications handled: 18 • Merchant Velocity: 4.2x • Shared IMEIs: 4 Borrowers</p>
               </div>
 

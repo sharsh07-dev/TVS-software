@@ -112,6 +112,19 @@ class BackendClient {
     }
   }
 
+  public async startInvestigation(caseId: string, assignee: string = 'Senior Analyst') {
+    try {
+      const res = await fetch(`${API_BASE}/api/investigations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ case_id: caseId, assignee })
+      });
+      return await res.json();
+    } catch {
+      return null;
+    }
+  }
+
   public async stepSimulation(stage: string) {
     try {
       const res = await fetch(`${API_BASE}/simulation/step`, {

@@ -19,7 +19,9 @@ import { backendClient } from '../services/backendClient';
 export const InvestigationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const appId = id || 'APP-78287';
-  const application = riskService.getApplicationById(appId) || riskService.getApplications()[0];
+  
+  const [application, setApplication] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const [tasks, setTasks] = useState(riskService.getVerificationTasks());
   const [isSimulated, setIsSimulated] = useState(false);
@@ -32,6 +34,17 @@ export const InvestigationPage: React.FC = () => {
   };
 
   const completedCount = tasks.filter(t => t.completed).length;
+
+  React.useEffect(() => {
+    backendClient.fetchApplication(appId).then(data => {
+      setApplication(data);
+      setLoading(false);
+    });
+  }, [appId]);
+
+  if (loading || !application) {
+    return <div className="p-8 text-center text-slate-500">Loading investigation data...</div>;
+  }
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -47,9 +60,10 @@ export const InvestigationPage: React.FC = () => {
     }
   };
 
-  const handleAssign = () => {
+  const handleAssign = async () => {
+    await backendClient.startInvestigation(`CASE-${application.id}`, 'Senior Risk Analyst');
     setAssigned(true);
-    triggerToast(`Case ${application.id} assigned to Senior Analyst Arjun Mehta.`);
+    triggerToast(`Case ${application.id} assigned to you.`);
   };
 
   const handleMarkFalsePositive = async () => {
@@ -62,8 +76,8 @@ export const InvestigationPage: React.FC = () => {
     }
   };
 
-  const currentEcosystemRisk = isLegitimate ? 28 : (isSimulated ? 62 : application.ecosystemRisk);
-  const divergence = currentEcosystemRisk - application.individualRisk;
+  const currentEcosystemRisk = isLegitimate ? 28 : (isSimulated ? 62 : (application.current_ecosystem_risk || application.ecosystem_risk));
+  const divergence = currentEcosystemRisk - application.individual_risk;
 
   return (
     <div className="space-y-6">
@@ -83,7 +97,7 @@ export const InvestigationPage: React.FC = () => {
           </Link>
           <span>/</span>
           <Link to="/app/ecosystems" className="hover:text-blue-600 font-semibold font-mono">
-            {application.ecosystem}
+            {application.ecosystem_id || application.ecosystem}
           </Link>
           <span>/</span>
           <span className="font-bold text-slate-900">Investigation {application.id}</span>
@@ -95,7 +109,7 @@ export const InvestigationPage: React.FC = () => {
             Priority: High
           </span>
           <span className="bg-blue-50 text-blue-800 px-2.5 py-1 rounded-md text-[11px] font-semibold border border-blue-200">
-            {assigned ? 'Assigned to Arjun Mehta' : 'Open Investigation'}
+            {assigned ? 'Assigned to you' : 'Open Investigation'}
           </span>
         </div>
       </div>
@@ -112,7 +126,7 @@ export const InvestigationPage: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Borrower: <strong className="text-slate-900">{application.applicantName}</strong> • Submitted {application.submittedTime} • Dealer: <strong className="text-slate-900">{application.dealer}</strong>
+            Borrower: <strong className="text-slate-900">{application.applicant_name || application.applicantName}</strong> • Submitted {application.submitted_time || application.submittedTime} • Dealer: <strong className="text-slate-900">{application.dealer}</strong>
           </p>
         </div>
 
@@ -124,10 +138,10 @@ export const InvestigationPage: React.FC = () => {
               <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
             </div>
             <div className="text-2xl font-black text-slate-900 mt-1">
-              {application.individualRisk} <span className="text-xs font-normal text-slate-400">/ 100</span>
+              {application.individual_risk || application.individualRisk} <span className="text-xs font-normal text-slate-400">/ 100</span>
             </div>
             <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mt-0.5">
-              {application.individualRiskLevel} RISK
+              {application.individual_risk_level || application.individualRiskLevel} RISK
             </div>
           </div>
 
@@ -157,13 +171,13 @@ export const InvestigationPage: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              {application.topDrivers.map((driver) => (
-                <div key={driver.id} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1.5">
+              {(application.risk_drivers || application.topDrivers || []).map((driver: any, idx: number) => (
+                <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-900">{driver.title}</span>
-                    <span className="font-black text-red-600">+{driver.contributionPercent}%</span>
+                    <span className="font-bold text-slate-900">{driver.feature || driver.title}</span>
+                    <span className="font-black text-red-600">+{Math.round(driver.contribution || driver.contributionPercent)}%</span>
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">{driver.details}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed">{driver.evidence || driver.details}</p>
                 </div>
               ))}
             </div>
@@ -178,10 +192,16 @@ export const InvestigationPage: React.FC = () => {
                 <Network className="w-4 h-4 text-blue-600" />
                 <h2 className="font-bold text-slate-900 text-sm">ECOSYSTEM TOPOLOGY GRAPH</h2>
               </div>
-              <span className="font-mono text-xs text-blue-600 font-semibold">{application.ecosystem}</span>
+              <span className="font-mono text-xs text-blue-600 font-semibold">{application.ecosystem_id || application.ecosystem}</span>
             </div>
 
-            <MiniEcosystemGraph variant="investigation" />
+            <MiniEcosystemGraph 
+              variant="investigation" 
+              appId={application.id} 
+              applicantName={application.applicant_name || application.applicantName} 
+              deviceId={application.device_id || 'DEV-Unknown'} 
+              dealerName={application.dealer || 'Unknown Dealer'} 
+            />
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
@@ -245,7 +265,7 @@ export const InvestigationPage: React.FC = () => {
                 }`}
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span>{assigned ? 'Assigned to Arjun Mehta' : 'Assign Investigator'}</span>
+                <span>{assigned ? 'Assigned to you' : 'Assign Investigator'}</span>
               </button>
 
               <button
