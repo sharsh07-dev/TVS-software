@@ -1,3 +1,7 @@
-google-generativeai
+fastapi
+uvicorn
+websockets
+SQLAlchemy
+pydantic
 python-dotenv
 httpx
